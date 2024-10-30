@@ -256,10 +256,26 @@ const castReceiverOptions = new cast.framework.CastReceiverOptions();
  * Set the player configuration.
  */
 const playbackConfig = new cast.framework.PlaybackConfig();
-playbackConfig.autoResumeDuration = 5;
-castReceiverOptions.playbackConfig = playbackConfig;
-castDebugLogger.info(LOG_RECEIVER_TAG,
-  `autoResumeDuration set to: ${playbackConfig.autoResumeDuration}`);
+// Customize the license url for playback
+playbackConfig.licenseUrl = 'https://udrmv3.kaltura.com/cenc/widevine/license?custom_data=eyJjYV9zeXN0ZW0iOiJodHRwczovL3Jlc3QtYXMub3R0LmthbHR1cmEuY29tL2FwaV92My9zZXJ2aWNlL2Fzc2V0RmlsZS9hY3Rpb24vZ2V0Q29udGV4dD9rcz1kako4TVRRM2ZMcXRXcTFTZ3NwSDN4eUdCclhpTWVwR0U4bnZPRVFtX3FCZjBDUFg0OE5EbTNIcWpnb1AxMTVDN2MwYWNjanowZmFOTGdVU3NpMFBPSTJSS0JuTENHQVBuMFRBbk9sWU93aktTRFFKTkJ4VWYxUWh5X0duYnRlMmVrQTB2eWk0eFktaU5ubGFzOVVyYnpRR1F6R1BqYTc3a0RLRTdMNW9jekJldGF3Z012VE5IYjFzb2VwTVJxcXh5Um1SM3JRV1JibmVJZ1l4WV80TjZ3VTFWZEFDQ1Ftby1tLUpfazlwNzlHalRBRVZqaFcyRmNNR0FiR0w5SEhRbVhtV3ExbmJwX195Q2xyWkdPT1p6dGZmWUp3bE81Mjd3VHVybXJ1TXIwdmpDZ3l0VE5BMkstMy1zNnhibldzUjA3eUJlOFpxM3FSR252VU5xVUZPNUxXYTlGNm1UNWs9JmNvbnRleHRUeXBlPW5vbmUmaWQ9OTgyNjk5MSIsImFjY291bnRfaWQiOjIwODIzMTEsImNvbnRlbnRfaWQiOiJmdGFfY2g4X2Rhc2hfMjAwNDVjNDNlOWU5X2Ntbl8yIiwiZmlsZXMiOiIiLCJ1c2VyX3Rva2VuIjoiZGpKOE1UUTNmTHF0V3ExU2dzcEgzeHlHQnJYaU1lcEdFOG52T0VRbV9xQmYwQ1BYNDhORG0zSHFqZ29QMTE1QzdjMGFjY2p6MGZhTkxnVVNzaTBQT0kyUktCbkxDR0FQbjBUQW5PbFlPd2pLU0RRSk5CeFVmMVFoeV9HbmJ0ZTJla0EwdnlpNHhZLWlObmxhczlVcmJ6UUdRekdQamE3N2tES0U3TDVvY3pCZXRhd2dNdlROSGIxc29lcE1ScXF4eVJtUjNyUVdSYm5lSWdZeFlfNE42d1UxVmRBQ0NRbW8tbS1KX2s5cDc5R2pUQUVWamhXMkZjTUdBYkdMOUhIUW1YbVdxMW5icF9feUNsclpHT09aenRmZllKd2xPNTI3d1R1cm1ydU1yMHZqQ2d5dFROQTJLLTMtczZ4Ym5Xc1IwN3lCZThacTNxUkdudlVOcVVGTzVMV2E5RjZtVDVrPSIsInVkaWQiOiIiLCJhZGRpdGlvbmFsX2Nhc19zeXN0ZW0iOjE0N30%3d&signature=6ji1J9Z%2b63a1HSZiUtwpwc5nvhk%3d';
+playbackConfig.protectionSystem = cast.framework.ContentProtection.WIDEVINE;
+playbackConfig.licenseRequestHandler = requestInfo => {
+  requestInfo.withCredentials = true;
+};
+context.start({playbackConfig: playbackConfig});
+
+// Update playback config licenseUrl according to provided value in load request.
+context.getPlayerManager().setMediaPlaybackInfoHandler((loadRequest, playbackConfig) => {
+  if (loadRequest.media.customData && loadRequest.media.customData.licenseUrl) {
+    playbackConfig.licenseUrl = loadRequest.media.customData.licenseUrl;
+  }
+  return playbackConfig;
+});
+/* playbackConfig.autoResumeDuration = 5;
+ * castReceiverOptions.playbackConfig = playbackConfig;
+ * castDebugLogger.info(LOG_RECEIVER_TAG,
+ *  `autoResumeDuration set to: ${playbackConfig.autoResumeDuration}`);
+ */
 
 /* 
  * Set the SupportedMediaCommands.
